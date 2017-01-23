@@ -1,8 +1,8 @@
 package com.sk_scd91.basicqrscanner;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -11,6 +11,10 @@ import android.view.MenuItem;
 
 public class BarcodeListActivity extends AppCompatActivity {
 
+    private static final int IMG_REQUEST_CODE = 0;
+
+    private static final int CAMERA_PERMISSION_CODE = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,12 +22,13 @@ public class BarcodeListActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton imageFab = (FloatingActionButton) findViewById(R.id.img_fab);
+        imageFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent imgPickIntent = new Intent(Intent.ACTION_PICK);
+                imgPickIntent.setType("image/*");
+                startActivityForResult(imgPickIntent, IMG_REQUEST_CODE);
             }
         });
     }
@@ -48,5 +53,13 @@ public class BarcodeListActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == IMG_REQUEST_CODE) {
+            // TODO Scan barcodes from the image.
+        }
     }
 }
