@@ -1,10 +1,14 @@
 package com.sk_scd91.basicqrscanner;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,6 +24,7 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
 public class BarcodeListActivity extends AppCompatActivity {
 
@@ -27,7 +32,7 @@ public class BarcodeListActivity extends AppCompatActivity {
 
     private static final int IMG_REQUEST_CODE = 0x10;
 
-    private static final int CAMERA_PERMISSION_CODE = 0;
+    private static final int CAMERA_PERMISSION_CODE = 0x10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +45,7 @@ public class BarcodeListActivity extends AppCompatActivity {
         imageFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent imgPickIntent = new Intent(Intent.ACTION_PICK);
-                imgPickIntent.setType("image/*");
-                startActivityForResult(imgPickIntent, IMG_REQUEST_CODE);
+                launchImagePicker();
             }
         });
 
@@ -50,9 +53,26 @@ public class BarcodeListActivity extends AppCompatActivity {
         cameraFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                launchCamera();
             }
         });
+    }
+
+    private void launchImagePicker() {
+        Intent imgPickIntent = new Intent(Intent.ACTION_PICK);
+        imgPickIntent.setType("image/*");
+        startActivityForResult(imgPickIntent, IMG_REQUEST_CODE);
+    }
+
+    private void launchCamera() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                == PackageManager.PERMISSION_GRANTED) {
+
+        } else {
+            Log.d(TAG, "Requesting camera permission");
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA},
+                    CAMERA_PERMISSION_CODE);
+        }
     }
 
     @Override
@@ -78,10 +98,24 @@ public class BarcodeListActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        Log.d(TAG, "Requesting permissions.");
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "CAMERA permission granted.");
+                launchCamera();
+            } else {
+                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT);
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == IMG_REQUEST_CODE) {
-            // TODO Scan barcodes from the image.
             if (resultCode == RESULT_OK) {
                 Log.d(TAG, "Found Image :" + data);
 
