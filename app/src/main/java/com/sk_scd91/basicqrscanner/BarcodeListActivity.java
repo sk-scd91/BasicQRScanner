@@ -1,17 +1,31 @@
 package com.sk_scd91.basicqrscanner;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.barcode.Barcode;
+import com.google.android.gms.vision.barcode.BarcodeDetector;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class BarcodeListActivity extends AppCompatActivity {
 
-    private static final int IMG_REQUEST_CODE = 0;
+    private static final String TAG = "BarcodeListActivity";
+
+    private static final int IMG_REQUEST_CODE = 0x10;
 
     private static final int CAMERA_PERMISSION_CODE = 0;
 
@@ -29,6 +43,14 @@ public class BarcodeListActivity extends AppCompatActivity {
                 Intent imgPickIntent = new Intent(Intent.ACTION_PICK);
                 imgPickIntent.setType("image/*");
                 startActivityForResult(imgPickIntent, IMG_REQUEST_CODE);
+            }
+        });
+
+        FloatingActionButton cameraFab = (FloatingActionButton) findViewById(R.id.camera_fab);
+        cameraFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
     }
@@ -60,6 +82,38 @@ public class BarcodeListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == IMG_REQUEST_CODE) {
             // TODO Scan barcodes from the image.
+            if (resultCode == RESULT_OK) {
+                Log.d(TAG, "Found Image :" + data);
+
+                Bitmap image = null;
+
+                try {
+                    InputStream imageInput = getContentResolver().openInputStream(data.getData());
+                    image = BitmapFactory.decodeStream(imageInput);
+                    imageInput.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "Unable to use image file.", e);
+                    return;
+                }
+
+                BarcodeDetector detector = new BarcodeDetector.Builder(this)
+                        .setBarcodeFormats(Barcode.QR_CODE)
+                        .build();
+                if (!detector.isOperational()) {
+                    Log.e(TAG, "Barcode detector not operational.");
+                    Toast.makeText(this, "Barcode detector not operational.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Frame frame = new Frame.Builder().setBitmap(image).build();
+                SparseArray<Barcode> barcodes = detector.detect(frame);
+                if (barcodes.size() > 0) {
+                    Toast.makeText(this, barcodes.valueAt(0).rawValue, Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(this, "No QR codes found.", Toast.LENGTH_SHORT).show();
+                }
+                detector.release();
+            }
         }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
