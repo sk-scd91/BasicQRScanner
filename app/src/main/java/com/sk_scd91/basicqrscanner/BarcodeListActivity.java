@@ -105,7 +105,7 @@ public class BarcodeListActivity extends AppCompatActivity {
                 Log.d(TAG, "CAMERA permission granted.");
                 launchCamera();
             } else {
-                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT);
+                Toast.makeText(this, R.string.error_camera_permission_denied, Toast.LENGTH_SHORT);
             }
             return;
         }
@@ -135,7 +135,7 @@ public class BarcodeListActivity extends AppCompatActivity {
                         .build();
                 if (!detector.isOperational()) {
                     Log.e(TAG, "Barcode detector not operational.");
-                    Toast.makeText(this, "Barcode detector not operational.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.error_barcode_detector_not_operational, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Frame frame = new Frame.Builder().setBitmap(image).build();
@@ -143,7 +143,7 @@ public class BarcodeListActivity extends AppCompatActivity {
                 if (barcodes.size() > 0) {
                     Toast.makeText(this, barcodes.valueAt(0).rawValue, Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(this, "No QR codes found.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, R.string.error_no_qr_found, Toast.LENGTH_SHORT).show();
                 }
                 detector.release();
             }
