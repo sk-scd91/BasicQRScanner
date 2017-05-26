@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -157,6 +158,7 @@ public class BarcodeListActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .addToBackStack(newFragment.getClass().getSimpleName())
                 .replace(R.id.fragment_container, newFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .commit();
     }
 }
