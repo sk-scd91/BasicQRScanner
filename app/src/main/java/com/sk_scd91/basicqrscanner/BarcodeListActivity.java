@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -24,7 +25,6 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 public class BarcodeListActivity extends AppCompatActivity {
 
@@ -141,7 +141,9 @@ public class BarcodeListActivity extends AppCompatActivity {
                 Frame frame = new Frame.Builder().setBitmap(image).build();
                 SparseArray<Barcode> barcodes = detector.detect(frame);
                 if (barcodes.size() > 0) {
-                    Toast.makeText(this, barcodes.valueAt(0).rawValue, Toast.LENGTH_LONG).show();
+                    Barcode barcode = barcodes.valueAt(0);
+                    replaceMainFragment(BarcodeInfoFragment.newInstance(barcode));
+                    Toast.makeText(this, barcode.rawValue, Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(this, R.string.error_no_qr_found, Toast.LENGTH_SHORT).show();
                 }
@@ -149,5 +151,12 @@ public class BarcodeListActivity extends AppCompatActivity {
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void replaceMainFragment(Fragment newFragment) {
+        getSupportFragmentManager().beginTransaction()
+                .addToBackStack(newFragment.getClass().getSimpleName())
+                .replace(R.id.fragment_container, newFragment)
+                .commit();
     }
 }
