@@ -32,6 +32,7 @@ public class BarcodeListActivity extends AppCompatActivity {
     private static final String TAG = "BarcodeListActivity";
 
     private static final int IMG_REQUEST_CODE = 0x10;
+    private static final int CAMERA_REQUEST_CODE = 0x11;
 
     private static final int CAMERA_PERMISSION_CODE = 0x10;
 
@@ -68,7 +69,7 @@ public class BarcodeListActivity extends AppCompatActivity {
     private void launchCamera() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
-
+            startActivityForResult(new Intent(this, CameraScanActivity.class), CAMERA_REQUEST_CODE);
         } else {
             Log.d(TAG, "Requesting camera permission");
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA},
@@ -149,7 +150,17 @@ public class BarcodeListActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.error_no_qr_found, Toast.LENGTH_SHORT).show();
                 }
                 detector.release();
+            } else {
+                Log.d(TAG, "Image request cancelled.");
             }
+            return;
+        } else if (requestCode == CAMERA_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                replaceMainFragment(BarcodeInfoFragment.newInstance((Barcode) data.getParcelableExtra("barcode")));
+            } else {
+                Log.d(TAG, "Image request cancelled.");
+            }
+            return;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
