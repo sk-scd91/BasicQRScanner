@@ -3,6 +3,7 @@ package com.sk_scd91.basicqrscanner;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Vibrator;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -96,6 +97,14 @@ public class CameraScanActivity extends AppCompatActivity {
     }
 
     private void sendBarcodeAsResult(Barcode barcode) {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.VIBRATE)
+                == PackageManager.PERMISSION_GRANTED) {
+            Vibrator vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+            if (vibrator != null && vibrator.hasVibrator())
+                vibrator.vibrate(50L);
+        }
+
         final Intent barcodeResult = new Intent();
         barcodeResult.putExtra(EXTRA_BARCODE, barcode);
         setResult(RESULT_OK, barcodeResult);

@@ -35,6 +35,7 @@ public class BarcodeListActivity extends AppCompatActivity {
     private static final int CAMERA_REQUEST_CODE = 0x11;
 
     private static final int CAMERA_PERMISSION_CODE = 0x10;
+    private static final int VIBRATE_PERMISSION_CODE = 0x20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +59,8 @@ public class BarcodeListActivity extends AppCompatActivity {
                 launchCamera();
             }
         });
+
+        requestVibrateFeature();
     }
 
     private void launchImagePicker() {
@@ -74,6 +77,15 @@ public class BarcodeListActivity extends AppCompatActivity {
             Log.d(TAG, "Requesting camera permission");
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.CAMERA},
                     CAMERA_PERMISSION_CODE);
+        }
+    }
+
+    private void requestVibrateFeature() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.VIBRATE)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "Requesting vibrate permission");
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.VIBRATE},
+                    VIBRATE_PERMISSION_CODE);
         }
     }
 
@@ -108,6 +120,13 @@ public class BarcodeListActivity extends AppCompatActivity {
                 launchCamera();
             } else {
                 Toast.makeText(this, R.string.error_camera_permission_denied, Toast.LENGTH_SHORT);
+            }
+            return;
+        } else if (requestCode == VIBRATE_PERMISSION_CODE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "VIBRATE permission granted.");
+            } else {
+                Toast.makeText(this, R.string.error_vibrate_permission_denied, Toast.LENGTH_SHORT);
             }
             return;
         }

@@ -11,4 +11,5 @@
     <string name="info_type_unknown">Unknown</string>
 
     <string name="placeholder_no_text">No displayable text.</string>
+    <string name="error_vibrate_permission_denied">Vibration permission denied.</string>
 </resources>
