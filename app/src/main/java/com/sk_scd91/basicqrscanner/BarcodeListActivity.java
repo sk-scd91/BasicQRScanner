@@ -156,9 +156,15 @@ public class BarcodeListActivity extends AppCompatActivity {
             return;
         } else if (requestCode == CAMERA_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                replaceMainFragment(BarcodeInfoFragment.newInstance((Barcode) data.getParcelableExtra("barcode")));
+                if (data != null &&
+                        data.getParcelableExtra(CameraScanActivity.EXTRA_BARCODE) != null) {
+                    replaceMainFragment(BarcodeInfoFragment
+                            .newInstance((Barcode) data.getParcelableExtra(CameraScanActivity.EXTRA_BARCODE)));
+                } else {
+                    Log.d(TAG, "No barcode data.");
+                }
             } else {
-                Log.d(TAG, "Image request cancelled.");
+                Log.d(TAG, "Barcode request cancelled.");
             }
             return;
         }
