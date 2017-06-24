@@ -45,10 +45,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="top|end"
         android:clickable="true"
-        app:fabSize="mini"
         app:srcCompat="@android:drawable/ic_menu_camera"
         app:layout_anchor="@id/img_fab"
         app:layout_anchorGravity="top"
-        android:layout_marginBottom="72dp" />
+        android:layout_marginBottom="80dp" />
 
 </android.support.design.widget.CoordinatorLayout>
