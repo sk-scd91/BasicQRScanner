@@ -11,6 +11,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -114,6 +115,9 @@ public class CameraScanActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        //Hide status bar.
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
 
         // Ensure Google Play Services are available.
         GoogleApiAvailability gpAvalability = GoogleApiAvailability.getInstance();
