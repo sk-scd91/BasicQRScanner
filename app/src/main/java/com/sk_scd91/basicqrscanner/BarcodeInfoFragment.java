@@ -3,6 +3,7 @@ package com.sk_scd91.basicqrscanner;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +67,7 @@ public class BarcodeInfoFragment extends Fragment {
         infoTypeView.setText(getString(R.string.format_info_qr_type, getString(getNameOfBarcodeType())));
 
         TextView infoTextView = (TextView) view.findViewById(R.id.barcode_info_text);
+        setAutoLinkForBarcodeType(infoTextView);
         infoTextView.setText(mBarcodeDisplayValue);
 
         return view;
@@ -77,8 +79,28 @@ public class BarcodeInfoFragment extends Fragment {
                 return R.string.info_type_text;
             case Barcode.URL:
                 return R.string.info_type_url;
+            case Barcode.EMAIL:
+                return R.string.info_type_email;
+            case Barcode.PHONE:
+                return R.string.info_type_phone;
             default:
                 return R.string.info_type_unknown;
+        }
+    }
+
+    private void setAutoLinkForBarcodeType(TextView textView) {
+        switch (mBarcodeType) {
+            case Barcode.URL:
+                textView.setAutoLinkMask(Linkify.WEB_URLS);
+                break;
+            case Barcode.EMAIL:
+                textView.setAutoLinkMask(Linkify.EMAIL_ADDRESSES);
+                break;
+            case Barcode.PHONE:
+                textView.setAutoLinkMask(Linkify.PHONE_NUMBERS);
+                break;
+            default:
+                textView.setAutoLinkMask(0);
         }
     }
 
