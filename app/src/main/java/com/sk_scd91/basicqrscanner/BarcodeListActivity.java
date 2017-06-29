@@ -1,5 +1,11 @@
 package com.sk_scd91.basicqrscanner;
 
+/**
+ *
+ * (c) 2017 Sean Deneen
+ *
+ */
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,6 +33,13 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * The main {@link AppCompatActivity} that works with {@link BarcodeListActivityFragment}.
+ * It also requests runtime permissions, launches {@link CameraScanActivity} for barcodes,
+ * launches a picker to scan images, and displays {@link BarcodeInfoFragment} to display the
+ * barcode text.
+ *
+ */
 public class BarcodeListActivity extends AppCompatActivity {
 
     private static final String TAG = "BarcodeListActivity";
@@ -69,6 +82,7 @@ public class BarcodeListActivity extends AppCompatActivity {
         startActivityForResult(imgPickIntent, IMG_REQUEST_CODE);
     }
 
+    // Launch the camera activity, unless the camera permission wasn't set.
     private void launchCamera() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -117,7 +131,7 @@ public class BarcodeListActivity extends AppCompatActivity {
         if (requestCode == CAMERA_PERMISSION_CODE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.d(TAG, "CAMERA permission granted.");
-                launchCamera();
+                launchCamera(); // Request the camera activity to launch again.
             } else {
                 Toast.makeText(this, R.string.error_camera_permission_denied, Toast.LENGTH_SHORT);
             }
@@ -140,35 +154,7 @@ public class BarcodeListActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Log.d(TAG, "Found Image :" + data);
 
-                Bitmap image = null;
-
-                try {
-                    InputStream imageInput = getContentResolver().openInputStream(data.getData());
-                    image = BitmapFactory.decodeStream(imageInput);
-                    imageInput.close();
-                } catch (IOException e) {
-                    Log.e(TAG, "Unable to use image file.", e);
-                    return;
-                }
-
-                BarcodeDetector detector = new BarcodeDetector.Builder(this)
-                        .setBarcodeFormats(Barcode.QR_CODE)
-                        .build();
-                if (!detector.isOperational()) {
-                    Log.e(TAG, "Barcode detector not operational.");
-                    Toast.makeText(this, R.string.error_barcode_detector_not_operational, Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                Frame frame = new Frame.Builder().setBitmap(image).build();
-                SparseArray<Barcode> barcodes = detector.detect(frame);
-                if (barcodes.size() > 0) {
-                    Barcode barcode = barcodes.valueAt(0);
-                    replaceMainFragment(BarcodeInfoFragment.newInstance(barcode));
-                    Toast.makeText(this, barcode.rawValue, Toast.LENGTH_LONG).show();
-                } else {
-                    Toast.makeText(this, R.string.error_no_qr_found, Toast.LENGTH_SHORT).show();
-                }
-                detector.release();
+                scanImageFromIntent(data);
             } else {
                 Log.d(TAG, "Image request cancelled.");
             }
@@ -190,6 +176,39 @@ public class BarcodeListActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    // Detect a barcode from the image URI passed in from the data intent.
+    private void scanImageFromIntent(Intent data) {
+        Bitmap image = null;
+
+        try {
+            InputStream imageInput = getContentResolver().openInputStream(data.getData());
+            image = BitmapFactory.decodeStream(imageInput);
+            imageInput.close();
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to use image file.", e);
+            return;
+        }
+
+        BarcodeDetector detector = new BarcodeDetector.Builder(this)
+                .setBarcodeFormats(Barcode.QR_CODE)
+                .build();
+        if (!detector.isOperational()) {
+            Log.e(TAG, "Barcode detector not operational.");
+            Toast.makeText(this, R.string.error_barcode_detector_not_operational, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Frame frame = new Frame.Builder().setBitmap(image).build();
+        SparseArray<Barcode> barcodes = detector.detect(frame);
+        if (barcodes.size() > 0) {
+            Barcode barcode = barcodes.valueAt(0);
+            replaceMainFragment(BarcodeInfoFragment.newInstance(barcode));
+        } else {
+            Toast.makeText(this, R.string.error_no_qr_found, Toast.LENGTH_SHORT).show();
+        }
+        detector.release();
+    }
+
+    // Push the old Fragment in the backstack, and replace it with a newly instantiated Fragment.
     private void replaceMainFragment(Fragment newFragment) {
         getSupportFragmentManager().beginTransaction()
                 .addToBackStack(newFragment.getClass().getSimpleName())

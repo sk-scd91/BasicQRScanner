@@ -1,5 +1,11 @@
 package com.sk_scd91.basicqrscanner;
 
+/**
+ *
+ * (c) 2017 Sean Deneen
+ *
+ */
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +28,10 @@ import com.google.android.gms.vision.barcode.BarcodeDetector;
 
 import java.io.IOException;
 
+/**
+ * An {@link AppCompatActivity} that displays a camera preview and scans barcodes.
+ * Uses Google Play mobile vision for the QR code scanner.
+ */
 public class CameraScanActivity extends AppCompatActivity {
 
     private static final String TAG = "CameraScanActivity";
@@ -66,6 +76,7 @@ public class CameraScanActivity extends AppCompatActivity {
         });
     }
 
+    // Create a camera source with a barcode detector that retrieves the first barcode detected.
     private void createCameraSource() {
         BarcodeDetector barcodeDetector = new BarcodeDetector.Builder(this)
                 .setBarcodeFormats(Barcode.QR_CODE)
@@ -97,6 +108,8 @@ public class CameraScanActivity extends AppCompatActivity {
                 .build();
     }
 
+    // Finish the activity with the given barcode as the result.
+    // Also, optionally vibrate for feedback.
     private void sendBarcodeAsResult(Barcode barcode) {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.VIBRATE)
@@ -132,6 +145,7 @@ public class CameraScanActivity extends AppCompatActivity {
         tryStartCamera();
     }
 
+    // Start the camera when the activity is resuming and the SurfaceView's Surface is available.
     private void tryStartCamera() {
         if (mStartingCamera && mSurfaceExists && mCameraSource != null) {
             try {

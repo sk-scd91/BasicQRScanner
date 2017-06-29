@@ -1,5 +1,11 @@
 package com.sk_scd91.basicqrscanner;
 
+/**
+ *
+ * (c) 2017 Sean Deneen
+ *
+ */
+
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;

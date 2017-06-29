@@ -1,5 +1,10 @@
 package com.sk_scd91.basicqrscanner;
 
+/**
+ *
+ * (c) 2017 Sean Deneen
+ *
+ */
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -13,26 +18,23 @@ import com.google.android.gms.vision.barcode.Barcode;
 
 
 /**
- * A simple {@link Fragment} subclass.
+ * A {@link Fragment} subclass that displays the type and text of the barcode.
  * Use the {@link BarcodeInfoFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class BarcodeInfoFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
+
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_BARCODE = "barcode";
 
-    // TODO: Rename and change types of parameters
     private int mBarcodeType;
     private String mBarcodeDisplayValue;
 
     public BarcodeInfoFragment() {
-        // Required empty public constructor
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Factory method to instantiate a {@link BarcodeInfoFragment} with a {@link Barcode}.
      *
      * @param barcode Barcode data to display.
      * @return A new instance of fragment BarcodeInfoFragment.
@@ -60,7 +62,7 @@ public class BarcodeInfoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+
         View view = inflater.inflate(R.layout.fragment_barcode_info, container, false);
 
         TextView infoTypeView = (TextView) view.findViewById(R.id.barcode_info_type);
@@ -73,6 +75,7 @@ public class BarcodeInfoFragment extends Fragment {
         return view;
     }
 
+    // Return the string resource id for the barcode type name.
     private int getNameOfBarcodeType() {
         switch (mBarcodeType) {
             case Barcode.TEXT:
@@ -88,6 +91,7 @@ public class BarcodeInfoFragment extends Fragment {
         }
     }
 
+    // Set up the correct link type for common barcode types.
     private void setAutoLinkForBarcodeType(TextView textView) {
         switch (mBarcodeType) {
             case Barcode.URL:
