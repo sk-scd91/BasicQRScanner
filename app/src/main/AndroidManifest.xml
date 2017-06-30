@@ -27,7 +27,10 @@
         </activity>
         <activity
             android:name=".CameraScanActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".CameraSettingsActivity"
+            android:parentActivityName=".BarcodeListActivity"></activity>
     </application>
 
 </manifest>
