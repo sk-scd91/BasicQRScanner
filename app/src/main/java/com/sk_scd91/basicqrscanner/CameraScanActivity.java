@@ -8,8 +8,10 @@ package com.sk_scd91.basicqrscanner;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Vibrator;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -42,6 +44,8 @@ public class CameraScanActivity extends AppCompatActivity {
     private CameraSource mCameraSource;
 
     private boolean mCanAutoFocus;
+    private int mCameraFacing;
+    private float mCameraFPS;
     private boolean mStartingCamera = false;
     private boolean mSurfaceExists = false;
 
@@ -51,7 +55,22 @@ public class CameraScanActivity extends AppCompatActivity {
         setContentView(R.layout.activity_camera_scan);
 
         mCameraView = (SurfaceView) findViewById(R.id.camera_surface_view);
-        mCanAutoFocus = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS);
+
+        // Get the preferences from settings.
+        PreferenceManager.setDefaultValues(this, R.xml.camera_prefs, false);
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+
+        mCanAutoFocus = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_AUTOFOCUS)
+                && sp.getBoolean(getString(R.string.pref_key_autofocus_preference), true);
+        mCameraFacing = sp.getBoolean(getString(R.string.pref_key_face_preference), false)
+                ? CameraSource.CAMERA_FACING_FRONT : CameraSource.CAMERA_FACING_BACK;
+        // Get the string preference as a float.
+        try {
+            mCameraFPS = Float.parseFloat(sp.getString(getString(R.string.pref_key_camera_fps), "15"));
+        } catch (NumberFormatException e) {
+            mCameraFPS = 15f;
+        }
+
         createCameraSource();
 
         // Detect when a Surface is created.
@@ -102,9 +121,9 @@ public class CameraScanActivity extends AppCompatActivity {
         });
 
         mCameraSource = new CameraSource.Builder(this, barcodeDetector)
-                .setFacing(CameraSource.CAMERA_FACING_BACK)
+                .setFacing(mCameraFacing)
                 .setAutoFocusEnabled(mCanAutoFocus)
-                .setRequestedFps(15f)
+                .setRequestedFps(mCameraFPS)
                 .build();
     }
 

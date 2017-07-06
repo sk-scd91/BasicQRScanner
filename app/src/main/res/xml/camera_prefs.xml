@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:key="fps_preference"
-        android:title="Camera FPS"
-        android:summary="The framerate of the camera preview."
-        android:inputType="numberDecimal"/>
+        android:key="@string/pref_key_camera_fps"
+        android:title="@string/pref_title_camera_fps"
+        android:summary="@string/pref_summary_camera_fps"
+        android:inputType="numberDecimal"
+        android:defaultValue="15"/>
     <SwitchPreference
-        android:key="face_preference"
-        android:title="Camera Facing"
-        android:switchTextOff="Back"
-        android:switchTextOn="Front"
-        android:summaryOff="Back Camera On"
-        android:summaryOn="Front Camera On"/>
+        android:key="@string/pref_key_face_preference"
+        android:title="@string/pref_title_face_preference"
+        android:switchTextOff="@string/pref_switch_off_face_preference"
+        android:switchTextOn="@string/pref_switch_on_face_preference"
+        android:summaryOff="@string/pref_summary_off_face_preference"
+        android:summaryOn="@string/pref_summary_on_face_preference"
+        android:defaultValue="false"/>
     <SwitchPreference
-        android:key="autofocus_preference"
-        android:title="Auto Focus"/>
+        android:key="@string/pref_key_autofocus_preference"
+        android:title="@string/pref_title_autofocus_preference"
+        android:defaultValue="true"/>
 </PreferenceScreen>

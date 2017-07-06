@@ -15,5 +15,16 @@
     <string name="info_type_unknown">Unknown</string>
 
     <string name="placeholder_no_text">No displayable text.</string>
+    <string name="pref_key_camera_fps">fps_preference</string>
+    <string name="pref_title_camera_fps">Camera FPS</string>
+    <string name="pref_summary_camera_fps">The framerate of the camera preview.</string>
+    <string name="pref_key_face_preference">face_preference</string>
+    <string name="pref_title_face_preference">Camera Facing</string>
+    <string name="pref_switch_off_face_preference">Back</string>
+    <string name="pref_switch_on_face_preference">Front</string>
+    <string name="pref_summary_off_face_preference">Back Camera On</string>
+    <string name="pref_summary_on_face_preference">Front Camera On</string>
+    <string name="pref_key_autofocus_preference">autofocus_preference</string>
+    <string name="pref_title_autofocus_preference">Auto Focus</string>
 
 </resources>
