@@ -40,6 +40,7 @@ public class QRDBLoader extends AsyncTaskLoader<List<Barcode>> {
             }
         } finally {
             cursor.close();
+            db.close();
         }
         return barcodes;
     }

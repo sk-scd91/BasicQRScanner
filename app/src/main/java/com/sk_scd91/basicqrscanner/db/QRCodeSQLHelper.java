@@ -23,6 +23,7 @@ public class QRCodeSQLHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + QRDB.NAME);
         onCreate(db);
     }
 }
