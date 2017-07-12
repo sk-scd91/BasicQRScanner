@@ -6,6 +6,7 @@ package com.sk_scd91.basicqrscanner;
  *
  */
 
+import android.content.res.Resources;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -169,6 +170,11 @@ public class BarcodeListActivityFragment extends Fragment {
                 TextView itemTypeView = (TextView) itemView.findViewById(R.id.barcode_item_type);
                 TextView itemTextView = (TextView) itemView.findViewById(R.id.barcode_item_text);
 
+                Resources resources = itemView.getResources();
+                itemTypeView.setText(resources.getString(R.string.format_info_qr_type,
+                        resources.getString(Utils.getNameOfBarcodeType(barcode.valueFormat))));
+                Utils.setAutoLinkForBarcodeType(itemTextView, barcode.valueFormat);
+                itemTextView.setText(barcode.displayValue);
             }
         }
     }

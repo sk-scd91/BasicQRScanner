@@ -27,8 +27,7 @@ public class BarcodeInfoFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_BARCODE = "barcode";
 
-    private int mBarcodeType;
-    private String mBarcodeDisplayValue;
+    private Barcode mBarcode;
 
     public BarcodeInfoFragment() {
     }
@@ -52,9 +51,7 @@ public class BarcodeInfoFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             if (getArguments().getParcelable(ARG_BARCODE) != null) {
-                Barcode barcode = (Barcode) getArguments().getParcelable(ARG_BARCODE);
-                mBarcodeType = barcode.valueFormat;
-                mBarcodeDisplayValue = barcode.displayValue;
+                mBarcode = (Barcode) getArguments().getParcelable(ARG_BARCODE);
             }
         }
     }
@@ -66,46 +63,14 @@ public class BarcodeInfoFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_barcode_info, container, false);
 
         TextView infoTypeView = (TextView) view.findViewById(R.id.barcode_info_type);
-        infoTypeView.setText(getString(R.string.format_info_qr_type, getString(getNameOfBarcodeType())));
+        infoTypeView.setText(getString(R.string.format_info_qr_type,
+                getString(Utils.getNameOfBarcodeType(mBarcode.valueFormat))));
 
         TextView infoTextView = (TextView) view.findViewById(R.id.barcode_info_text);
-        setAutoLinkForBarcodeType(infoTextView);
-        infoTextView.setText(mBarcodeDisplayValue);
+        Utils.setAutoLinkForBarcodeType(infoTextView, mBarcode.valueFormat);
+        infoTextView.setText(mBarcode.displayValue);
 
         return view;
-    }
-
-    // Return the string resource id for the barcode type name.
-    private int getNameOfBarcodeType() {
-        switch (mBarcodeType) {
-            case Barcode.TEXT:
-                return R.string.info_type_text;
-            case Barcode.URL:
-                return R.string.info_type_url;
-            case Barcode.EMAIL:
-                return R.string.info_type_email;
-            case Barcode.PHONE:
-                return R.string.info_type_phone;
-            default:
-                return R.string.info_type_unknown;
-        }
-    }
-
-    // Set up the correct link type for common barcode types.
-    private void setAutoLinkForBarcodeType(TextView textView) {
-        switch (mBarcodeType) {
-            case Barcode.URL:
-                textView.setAutoLinkMask(Linkify.WEB_URLS);
-                break;
-            case Barcode.EMAIL:
-                textView.setAutoLinkMask(Linkify.EMAIL_ADDRESSES);
-                break;
-            case Barcode.PHONE:
-                textView.setAutoLinkMask(Linkify.PHONE_NUMBERS);
-                break;
-            default:
-                textView.setAutoLinkMask(0);
-        }
     }
 
 }
