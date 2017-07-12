@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.SparseArray;
@@ -211,10 +212,14 @@ public class BarcodeListActivity extends AppCompatActivity {
 
     // Push the old Fragment in the backstack, and replace it with a newly instantiated Fragment.
     private void replaceMainFragment(Fragment newFragment) {
-        getSupportFragmentManager().beginTransaction()
-                .addToBackStack(newFragment.getClass().getSimpleName())
-                .replace(R.id.fragment_container, newFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .commit();
+        if (newFragment instanceof AppCompatDialogFragment) {
+            ((AppCompatDialogFragment) newFragment).show(getSupportFragmentManager(), null);
+        } else {
+            getSupportFragmentManager().beginTransaction()
+                    .addToBackStack(newFragment.getClass().getSimpleName())
+                    .replace(R.id.fragment_container, newFragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .commit();
+        }
     }
 }

@@ -6,8 +6,12 @@ package com.sk_scd91.basicqrscanner;
  *
  */
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatDialogFragment;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +26,7 @@ import com.google.android.gms.vision.barcode.Barcode;
  * Use the {@link BarcodeInfoFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class BarcodeInfoFragment extends Fragment {
+public class BarcodeInfoFragment extends AppCompatDialogFragment {
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_BARCODE = "barcode";
@@ -57,20 +61,36 @@ public class BarcodeInfoFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext())
+                .setTitle("QR Code Scanned: ")
+                .setView(R.layout.fragment_barcode_info)
+                .setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //((BarcodeListActivityFragment)getFragmentManager().findFragmentById(R.id.fragment))
+                                //.setNewBarcode(mBarcode);
+                    }
+                }).setNegativeButton("CANCEL", null);
 
-        View view = inflater.inflate(R.layout.fragment_barcode_info, container, false);
+        AlertDialog dialog = dialogBuilder.create();
+        return dialog;
+    }
 
-        TextView infoTypeView = (TextView) view.findViewById(R.id.barcode_info_type);
+    @Override
+    public void onStart() {
+        super.onStart();
+        setUpDialogText(getDialog());
+    }
+
+    private void setUpDialogText(Dialog dialog) {
+        TextView infoTypeView = (TextView) dialog.findViewById(R.id.barcode_info_type);
         infoTypeView.setText(getString(R.string.format_info_qr_type,
                 getString(Utils.getNameOfBarcodeType(mBarcode.valueFormat))));
 
-        TextView infoTextView = (TextView) view.findViewById(R.id.barcode_info_text);
+        TextView infoTextView = (TextView) dialog.findViewById(R.id.barcode_info_text);
         Utils.setAutoLinkForBarcodeType(infoTextView, mBarcode.valueFormat);
         infoTextView.setText(mBarcode.displayValue);
-
-        return view;
     }
 
 }
