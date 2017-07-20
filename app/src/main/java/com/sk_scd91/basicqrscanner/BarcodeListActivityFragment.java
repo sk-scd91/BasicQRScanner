@@ -8,11 +8,13 @@ package com.sk_scd91.basicqrscanner;
 
 import android.content.res.Resources;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
@@ -21,6 +23,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.google.android.gms.vision.barcode.Barcode;
+import com.sk_scd91.basicqrscanner.db.QRCodeSQLHelper;
+import com.sk_scd91.basicqrscanner.db.QRDB;
 import com.sk_scd91.basicqrscanner.db.QRDBLoader;
 
 import java.util.ArrayList;
@@ -44,22 +48,23 @@ public class BarcodeListActivityFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         mBarcodeAdapter = new BarcodeListAdapter();
-        getLoaderManager().initLoader(LOADER_ID, null, new LoaderManager.LoaderCallbacks<List<Barcode>>() {
-            @Override
-            public Loader<List<Barcode>> onCreateLoader(int id, Bundle args) {
-                return new QRDBLoader(getContext());
-            }
+            getLoaderManager().initLoader(LOADER_ID, null,
+                    new LoaderManager.LoaderCallbacks<List<Barcode>>() {
+                @Override
+                public Loader<List<Barcode>> onCreateLoader(int id, Bundle args) {
+                    return new QRDBLoader(getContext());
+                }
 
-            @Override
-            public void onLoadFinished(Loader<List<Barcode>> loader, List<Barcode> data) {
-                mBarcodeAdapter.addBarcodes(data);
-            }
+                @Override
+                public void onLoadFinished(Loader<List<Barcode>> loader, List<Barcode> data) {
+                    mBarcodeAdapter.addBarcodes(data);
+                }
 
-            @Override
-            public void onLoaderReset(Loader<List<Barcode>> loader) {
+                @Override
+                public void onLoaderReset(Loader<List<Barcode>> loader) {
 
-            }
-        });
+                }
+            });
 
     }
 
@@ -82,22 +87,40 @@ public class BarcodeListActivityFragment extends Fragment {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 if (direction == ItemTouchHelper.LEFT) {
-                    final int position = viewHolder.getAdapterPosition();
-                    final Barcode removed = mBarcodeAdapter.removeBarcode(position);
-                    String removeText = String.format("Removed %s", removed.displayValue);
-                    Snackbar.make(viewHolder.itemView, removeText, Snackbar.LENGTH_SHORT)
-                            .setAction("UNDO", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mBarcodeAdapter.insertBarcode(position, removed);
-                                }
-                            }).show();
+                    removeBarcodeFromList(viewHolder.itemView, viewHolder.getAdapterPosition());
                 }
             }
         });
         swipeToDeleteHelper.attachToRecyclerView(mRecyclerView);
 
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(),
+                RecyclerView.VERTICAL));
+
         return v;
+    }
+
+    private void removeBarcodeFromList(View itemView, final int position) {
+        final Barcode removed = mBarcodeAdapter.removeBarcode(position);
+        String removeText = String.format("Removed %s", removed.displayValue);
+        Snackbar.make(itemView, removeText, Snackbar.LENGTH_SHORT)
+                .setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mBarcodeAdapter.insertBarcode(position, removed);
+                    }
+                }).addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+            @Override
+            public void onDismissed(Snackbar snackBar, int event) {
+                if (event != BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION) {
+                    QRCodeSQLHelper sqlHelper = new QRCodeSQLHelper(snackBar.getContext());
+                    try {
+                        QRDB.deleteFromDB(sqlHelper.getWritableDatabase(), removed);
+                    } finally {
+                        sqlHelper.close();
+                    }
+                }
+            }
+        }).show();
     }
 
     @Override
@@ -115,10 +138,16 @@ public class BarcodeListActivityFragment extends Fragment {
      */
     public void setNewBarcode(Barcode barcode) {
         mBarcodeAdapter.insertBarcode(0, barcode);
+        QRCodeSQLHelper sqlHelper = new QRCodeSQLHelper(getContext().getApplicationContext());
+        try {
+            QRDB.insertToDB(sqlHelper.getWritableDatabase(), barcode);
+        } finally {
+            sqlHelper.close();
+        }
     }
 
     private static class BarcodeListAdapter extends RecyclerView.Adapter<BarcodeListAdapter.ViewHolder> {
-        private List<Barcode> barcodes = new ArrayList<>();
+        private ArrayList<Barcode> barcodes = new ArrayList<>();
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -137,15 +166,26 @@ public class BarcodeListActivityFragment extends Fragment {
         }
 
         public void addBarcodes(List<Barcode> newBarcodes) {
-            barcodes.clear();
-            if (newBarcodes != null)
+            if (newBarcodes != null && !newBarcodes.isEmpty()) {
+                barcodes.clear();
+                barcodes.ensureCapacity(newBarcodes.size());
                 barcodes.addAll(newBarcodes);
+            } else {
+                barcodes.clear();
+            }
             notifyDataSetChanged();
         }
 
-        public void insertBarcode(int index, Barcode barcode) {
-            barcodes.add(index, barcode);
-            notifyItemInserted(index);
+        public void insertBarcode(int position, Barcode barcode) {
+            for (int i = barcodes.size() - 1; i >= 0; i--) {
+                if (barcode.rawValue.equals(barcodes.get(i).rawValue)) {
+                    moveBarcodes(i, position);
+                    return;
+                }
+            }
+
+            barcodes.add(position, barcode);
+            notifyItemInserted(position);
         }
 
         public Barcode removeBarcode(int index) {
@@ -155,6 +195,8 @@ public class BarcodeListActivityFragment extends Fragment {
         }
 
         public void moveBarcodes(int from, int to) {
+            if (from == to) // Nothing to do if moving to the same position.
+                return;
             Barcode removed = barcodes.remove(from);
             barcodes.add(to, removed);
             notifyItemMoved(from, to);

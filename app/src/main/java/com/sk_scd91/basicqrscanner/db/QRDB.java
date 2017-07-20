@@ -5,6 +5,7 @@ package com.sk_scd91.basicqrscanner.db;
  */
 
 import android.content.ContentValues;
+import android.database.ContentObservable;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -16,6 +17,7 @@ import com.google.android.gms.vision.barcode.Barcode;
 public final class QRDB {
     public static final String NAME = "QRCODES";
     public static final class Columns {
+        public static final String ID = "ID";
         public static final String TIMESTAMP = "TIMESTAMP"; // For sorting by latest
         public static final String TYPE = "TYPE";
         public static final String DISPLAY_TEXT = "DISPLAY_TEXT";
@@ -23,14 +25,26 @@ public final class QRDB {
     }
 
     public static final String CREATE = "CREATE TABLE " + NAME + "("
+            + Columns.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + Columns.TIMESTAMP + " INTEGER NOT NULL, "
             + Columns.TYPE + " INTEGER NOT NULL DEFAULT " + Barcode.TEXT + ", "
-            + Columns.DISPLAY_TEXT + "TEXT, "
-            + Columns.RAW_TEXT + "TEXT"
+            + Columns.DISPLAY_TEXT + " TEXT, "
+            + Columns.RAW_TEXT + " TEXT"
             + ")";
 
     private QRDB() {
         // empty private constructor.
+    }
+
+    private static final ContentObservable qrdbObservable = new ContentObservable();
+
+    /**
+     * Get a content observable to notify when an item is added or removed from the database.
+     *
+     * @return the {@link ContentObservable} to register database changes for.
+     */
+    static ContentObservable getQrdbObservable() {
+        return qrdbObservable;
     }
 
     /**
@@ -46,19 +60,20 @@ public final class QRDB {
         long timestamp = System.currentTimeMillis();
 
         // If there is already a matching row inserted, just update it with the new timestamp.
-        Cursor cursor = db.query(NAME, new String[] {"_id"},
+        Cursor cursor = db.query(NAME, new String[] {Columns.ID},
                 Columns.RAW_TEXT + " = ? AND " + Columns.TYPE + " = ?",
                 new String[]{rawText, String.valueOf(type)},
                 null, null, null);
         try {
             if (cursor.moveToFirst()) {
-                long id = cursor.getLong(cursor.getColumnIndex("_id"));
+                long id = cursor.getLong(cursor.getColumnIndex(Columns.ID));
                 if (cursor.moveToNext()) { // Delete duplicates.
-                    db.delete(NAME, "_id != ?", new String[]{String.valueOf(id)});
+                    db.delete(NAME, Columns.ID + " != ?", new String[]{String.valueOf(id)});
                 }
                 ContentValues cv = new ContentValues();
                 cv.put(Columns.TIMESTAMP, timestamp);
-                db.update(NAME, cv, "_id = ?", new String[]{String.valueOf(id)});
+                db.update(NAME, cv, Columns.ID + " = ?", new String[]{String.valueOf(id)});
+                qrdbObservable.dispatchChange(false, null); // Notify the database changed.
                 return id;
             }
         } finally {
@@ -71,7 +86,9 @@ public final class QRDB {
         cv.put(Columns.DISPLAY_TEXT, displayText);
         cv.put(Columns.RAW_TEXT, rawText);
 
-        return db.insert(NAME, null, cv);
+        long returnId = db.insert(NAME, null, cv);
+        qrdbObservable.dispatchChange(false, null);
+        return returnId;
     }
 
     /**
@@ -94,8 +111,10 @@ public final class QRDB {
      * @return The number of rows deleted matching the criteria.
      */
     public static int deleteFromDB(SQLiteDatabase db, int type, String rawText) {
-        return db.delete(NAME, Columns.RAW_TEXT + " = ? AND " + Columns.TYPE + " = ?",
+        int deleteCount = db.delete(NAME, Columns.RAW_TEXT + " = ? AND " + Columns.TYPE + " = ?",
                 new String[]{rawText, String.valueOf(type)});
+        qrdbObservable.dispatchChange(false, null);
+        return deleteCount;
     }
 
     /**

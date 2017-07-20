@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 
 public class QRCodeSQLHelper extends SQLiteOpenHelper {
-    public static final int VERSION = 1;
+    public static final int VERSION = 3;
     private static final String DBNAME = "qrcodes.db";
 
     public QRCodeSQLHelper(Context context) {

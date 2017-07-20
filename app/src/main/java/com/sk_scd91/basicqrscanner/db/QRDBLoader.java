@@ -20,10 +20,22 @@ import java.util.List;
  */
 public class QRDBLoader extends AsyncTaskLoader<List<Barcode>> {
     private final QRCodeSQLHelper sqlHelper;
+    private List<Barcode> mBarcodes;
+    private ForceLoadContentObserver mContentObserver;
 
     public QRDBLoader(Context context) {
         super(context.getApplicationContext());
         sqlHelper = new QRCodeSQLHelper(context.getApplicationContext());
+        mContentObserver = new ForceLoadContentObserver();
+    }
+
+    @Override
+    protected void onStartLoading() {
+        QRDB.getQrdbObservable().registerObserver(mContentObserver);
+        if (mBarcodes != null)
+            deliverResult(mBarcodes);
+        if (takeContentChanged() || mBarcodes == null)
+            forceLoad();
     }
 
     @Override
@@ -40,8 +52,25 @@ public class QRDBLoader extends AsyncTaskLoader<List<Barcode>> {
             }
         } finally {
             cursor.close();
-            db.close();
+            sqlHelper.close();
         }
         return barcodes;
+    }
+
+    @Override
+    protected void onReset() {
+        super.onReset();
+        QRDB.getQrdbObservable().unregisterObserver(mContentObserver);
+        mBarcodes = null;
+    }
+
+    @Override
+    public void deliverResult(List<Barcode> barcodes) {
+        if (!isReset()) {
+            mBarcodes = barcodes;
+
+            if (isStarted())
+                super.deliverResult(barcodes);
+        }
     }
 }

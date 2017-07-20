@@ -68,8 +68,8 @@ public class BarcodeInfoFragment extends AppCompatDialogFragment {
                 .setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        //((BarcodeListActivityFragment)getFragmentManager().findFragmentById(R.id.fragment))
-                                //.setNewBarcode(mBarcode);
+                        ((BarcodeListActivityFragment)getFragmentManager().findFragmentById(R.id.fragment))
+                                .setNewBarcode(mBarcode);
                     }
                 }).setNegativeButton("CANCEL", null);
 
