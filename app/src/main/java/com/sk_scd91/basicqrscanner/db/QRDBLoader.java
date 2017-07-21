@@ -24,7 +24,7 @@ public class QRDBLoader extends AsyncTaskLoader<List<Barcode>> {
     private ForceLoadContentObserver mContentObserver;
 
     public QRDBLoader(Context context) {
-        super(context.getApplicationContext());
+        super(context);
         sqlHelper = new QRCodeSQLHelper(context.getApplicationContext());
         mContentObserver = new ForceLoadContentObserver();
     }
@@ -58,9 +58,16 @@ public class QRDBLoader extends AsyncTaskLoader<List<Barcode>> {
     }
 
     @Override
+    protected void onStopLoading() {
+        super.onStopLoading();
+        QRDB.getQrdbObservable().unregisterObserver(mContentObserver);
+    }
+
+    @Override
     protected void onReset() {
         super.onReset();
-        QRDB.getQrdbObservable().unregisterObserver(mContentObserver);
+        if (isStarted())
+            QRDB.getQrdbObservable().unregisterObserver(mContentObserver);
         mBarcodes = null;
     }
 

@@ -3,6 +3,9 @@ package com.sk_scd91.basicqrscanner.db;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
+
+import com.google.android.gms.vision.barcode.Barcode;
 
 /**
  * (c) 2017 Sean Deneen
@@ -26,4 +29,49 @@ public class QRCodeSQLHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + QRDB.NAME);
         onCreate(db);
     }
+
+    public AsyncTask<Void, Void, Void> insertAsync(Barcode barcode) {
+        return new DBTask(DBTask.INSERT_FLAG, this, barcode);
+    }
+
+    public AsyncTask<Void, Void, Void> deleteAsync(Barcode barcode) {
+        return new DBTask(DBTask.DELETE_FLAG, this, barcode);
+    }
+
+    private static class DBTask extends AsyncTask<Void, Void, Void> {
+        public static final int INSERT_FLAG = 0;
+        public static final int DELETE_FLAG = 1;
+
+        private final int mOpFlag;
+        private final SQLiteOpenHelper mSqlHelper;
+        private final Barcode mBarcode;
+
+        public DBTask(int opFlag, SQLiteOpenHelper sqlHelper, Barcode barcode) {
+            super();
+            mOpFlag = opFlag;
+            mSqlHelper = sqlHelper;
+            mBarcode = barcode;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            SQLiteDatabase db = mSqlHelper.getWritableDatabase();
+            try {
+                switch (mOpFlag) {
+                    case INSERT_FLAG:
+                        QRDB.insertToDB(db, mBarcode);
+                        break;
+                    case DELETE_FLAG:
+                        QRDB.deleteFromDB(db, mBarcode);
+                        break;
+                }
+            } finally {
+                db.close();
+            }
+
+            return null;
+        }
+    }
+
 }

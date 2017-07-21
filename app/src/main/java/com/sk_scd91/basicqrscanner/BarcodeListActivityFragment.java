@@ -112,12 +112,9 @@ public class BarcodeListActivityFragment extends Fragment {
             @Override
             public void onDismissed(Snackbar snackBar, int event) {
                 if (event != BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_ACTION) {
-                    QRCodeSQLHelper sqlHelper = new QRCodeSQLHelper(snackBar.getContext());
-                    try {
-                        QRDB.deleteFromDB(sqlHelper.getWritableDatabase(), removed);
-                    } finally {
-                        sqlHelper.close();
-                    }
+                    QRCodeSQLHelper sqlHelper = new QRCodeSQLHelper(snackBar.getContext()
+                            .getApplicationContext());
+                    sqlHelper.deleteAsync(removed).execute();
                 }
             }
         }).show();
@@ -139,11 +136,7 @@ public class BarcodeListActivityFragment extends Fragment {
     public void setNewBarcode(Barcode barcode) {
         mBarcodeAdapter.insertBarcode(0, barcode);
         QRCodeSQLHelper sqlHelper = new QRCodeSQLHelper(getContext().getApplicationContext());
-        try {
-            QRDB.insertToDB(sqlHelper.getWritableDatabase(), barcode);
-        } finally {
-            sqlHelper.close();
-        }
+        sqlHelper.insertAsync(barcode).execute();
     }
 
     private static class BarcodeListAdapter extends RecyclerView.Adapter<BarcodeListAdapter.ViewHolder> {
