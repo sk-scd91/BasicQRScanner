@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditTextPreference
+    <ListPreference
         android:key="@string/pref_key_camera_fps"
         android:title="@string/pref_title_camera_fps"
         android:summary="@string/pref_summary_camera_fps"
-        android:inputType="numberDecimal"
+        android:entries="@array/framerates"
+        android:entryValues="@array/framerates"
         android:defaultValue="15"/>
     <SwitchPreference
         android:key="@string/pref_key_face_preference"
