@@ -159,12 +159,10 @@ public class BarcodeListActivityFragment extends Fragment {
         }
 
         public void addBarcodes(List<Barcode> newBarcodes) {
-            if (newBarcodes != null && !newBarcodes.isEmpty()) {
-                barcodes.clear();
+            barcodes.clear();
+            if (newBarcodes != null) {
                 barcodes.ensureCapacity(newBarcodes.size());
                 barcodes.addAll(newBarcodes);
-            } else {
-                barcodes.clear();
             }
             notifyDataSetChanged();
         }
