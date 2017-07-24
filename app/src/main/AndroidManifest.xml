@@ -27,10 +27,12 @@
         </activity>
         <activity
             android:name=".CameraScanActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".BarcodeListActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
         <activity
             android:name=".CameraSettingsActivity"
-            android:parentActivityName=".BarcodeListActivity"></activity>
+            android:parentActivityName=".BarcodeListActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
