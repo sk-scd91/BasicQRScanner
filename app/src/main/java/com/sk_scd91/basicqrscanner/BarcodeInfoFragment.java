@@ -75,13 +75,13 @@ public class BarcodeInfoFragment extends AppCompatDialogFragment {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext())
                 .setTitle("QR Code Scanned: ")
                 .setView(R.layout.fragment_barcode_info)
-                .setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.info_dialog_save, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         ((BarcodeListActivityFragment)getFragmentManager().findFragmentById(R.id.fragment))
                                 .setNewBarcode(mBarcode);
                     }
-                }).setNegativeButton("CANCEL", null);
+                }).setNegativeButton(R.string.info_dialog_cancel, null);
 
         AlertDialog dialog = dialogBuilder.create();
         return dialog;

@@ -9,6 +9,9 @@
 
     <string name="scan_directions">Point camera toward QR code to scan.</string>
 
+    <string name="info_dialog_save">SAVE</string>
+    <string name="info_dialog_cancel">CANCEL</string>
+
     <string name="format_info_qr_type">Type: %1$s</string>
     <string name="info_type_text">Text</string>
     <string name="info_type_url">URL</string>
