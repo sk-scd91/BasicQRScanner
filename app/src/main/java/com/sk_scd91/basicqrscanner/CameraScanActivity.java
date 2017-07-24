@@ -13,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,7 @@ import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -93,6 +95,27 @@ public class CameraScanActivity extends AppCompatActivity {
                 mSurfaceExists = false;
             }
         });
+
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.hide();
+            getWindow().getDecorView()
+                    .setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+                @Override
+                public void onSystemUiVisibilityChange(int visibility) {
+                    Log.d("TAG", "System UI Visibility " + visibility);
+                    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) {
+                        actionBar.show();
+                    } else {
+                        actionBar.hide();
+                    }
+                }
+            });
+        }
+
+        if (savedInstanceState == null) { // Only show when launched, not recreated.
+            Toast.makeText(this, R.string.scan_directions, Toast.LENGTH_LONG).show();
+        }
     }
 
     // Create a camera source with a barcode detector that retrieves the first barcode detected.
@@ -148,9 +171,6 @@ public class CameraScanActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        //Hide status bar.
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
-
         // Ensure Google Play Services are available.
         GoogleApiAvailability gpAvalability = GoogleApiAvailability.getInstance();
         int availCode = gpAvalability.isGooglePlayServicesAvailable(this);
@@ -162,6 +182,20 @@ public class CameraScanActivity extends AppCompatActivity {
         Log.d(TAG, "Camera is resuming.");
         mStartingCamera = true;
         tryStartCamera();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            hideStatusBar();
+        }
+    }
+
+    public void hideStatusBar() {
+        //Hide status bar.
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
     // Start the camera when the activity is resuming and the SurfaceView's Surface is available.
